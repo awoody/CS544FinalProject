@@ -3,5 +3,23 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/HSQLDB_Trunk"/>
+	<classpathentry kind="lib" path="libraries/javax.ejb.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.el-api.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.el.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.enterprise.deploy.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.faces.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.jms.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.mail.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.management.j2ee.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.persistence.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.resource.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.security.auth.message.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.security.jacc.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.servlet-api.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.servlet.jsp-api.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.servlet.jsp.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.servlet.jsp.jstl-api.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.servlet.jsp.jstl.jar"/>
+	<classpathentry kind="lib" path="libraries/javax.transaction.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

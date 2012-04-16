@@ -9,7 +9,7 @@ import server.ServerInstantiator;
 public class Run 
 {
 	private static DatabaseConnectionManager manager;
-	private static boolean firstRun = false;
+	private static boolean buildSchema = false;
 	
 	public static void main(String [] args)
 	{
@@ -17,22 +17,33 @@ public class Run
 		manager = new DatabaseConnectionManager();
 		manager.connect();
 		
-		if(firstRun)
+		if(buildSchema)
 			doSetup();
 		
 		System.out.println("Connected.");
 		testQuery();
+		ServerInstantiator.stopServer();
 	}
 	
 	public static void doSetup()
 	{
-		String table1 = "CREATE TABLE contacts (name VARCHAR(45),email VARCHAR(45),phone VARCHAR(45));";
+		String clear = "DROP TABLE contacts;"; //Might fail but the rest works.
+		manager.executeStatement(clear);
+		
+		String table1 = "CREATE TABLE contacts (name VARCHAR(45),email VARCHAR(45),phone VARCHAR(45), PRIMARY KEY(name));";
 		manager.executeStatement(table1);
 		
 		String dummyInsert = "INSERT INTO contacts VALUES('bob', 'bob@loblaw.com', '505 123 4567');";
 		manager.executeStatement(dummyInsert);
 		
+		dummyInsert = "INSERT INTO contacts VALUES('bob2', 'bob@loblaw.com', '505 123 4567');";
+		manager.executeStatement(dummyInsert);
 		
+		dummyInsert = "INSERT INTO contacts VALUES('bob3', 'bob@loblaw.com', '505 123 4567');";
+		manager.executeStatement(dummyInsert);
+		
+		dummyInsert = "INSERT INTO contacts VALUES('bob4', 'bob@loblaw.com', '505 123 4567');";
+		manager.executeStatement(dummyInsert);
 	}
 	
 	public static void testQuery()
@@ -52,8 +63,7 @@ public class Run
 				System.out.println("Name: " + name);
 				System.out.println("Email: " + email);
 				System.out.println("Phone: " + phone);
-			}
-			
+			}		
 		} 
 		catch (SQLException e) 
 		{

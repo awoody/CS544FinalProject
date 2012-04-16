@@ -14,9 +14,6 @@ import java.sql.SQLException;
  * For entries, requests are always handled on the thread that makes the 
  * request.  This includes querying for duplicates and subsequently inserting.
  * 
- * For repositories, they are batched together as SQL commands and executed
- * at intervals specified by BATCH_DISPATCH_INTERVAL.
- * 
  * This object is useful to any program needing a database connection, and has
  * generic methods for executing any SQL queries.  It's constructor takes
  * a DatabaseConnectionDescriptor which is used by the connect() method to

@@ -4629,8 +4629,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *
      * @throws SQLException when a database access error occurs
      */
-    void fetchResult() throws SQLException {
-
+    void fetchResult() throws SQLException 
+    {	
         if (isClosed || connection.isClosed) {
             checkClosed();
         }

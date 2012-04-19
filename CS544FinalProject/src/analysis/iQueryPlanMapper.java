@@ -3,7 +3,7 @@ package analysis;
 import java.sql.Connection;
 import java.util.Map;
 
-public interface AbstractQueryPlanMapper 
+public interface iQueryPlanMapper 
 {
 	/**
 	 * Given a sql statement, a connection object, and a map, populates the map with 

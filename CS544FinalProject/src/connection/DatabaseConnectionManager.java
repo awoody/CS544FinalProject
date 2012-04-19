@@ -1,10 +1,12 @@
 package connection;
 
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.hsqldb.jdbc.JDBCConnection;
+import org.hsqldb.jdbc.JDBCPreparedStatement;
 
 /**
  * This is a a barebones object used for the express purpose of handling
@@ -25,7 +27,7 @@ import java.sql.SQLException;
  */
 public class DatabaseConnectionManager 
 {
-	private Connection entryConnection;
+	private JDBCConnection entryConnection;
 	
 	/**
 	 * Connects to the database.  Will throw a runtime exception if it fails,
@@ -40,11 +42,10 @@ public class DatabaseConnectionManager
 		{
 			Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
-			entryConnection = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost:1234/sample", "SA", "");
+			entryConnection = (JDBCConnection) DriverManager.getConnection("jdbc:hsqldb:hsql://localhost:1234/sample", "SA", "");
 		}
 		catch (SQLException e)
 		{
-			throw new RuntimeException("Fatal Error: Could not connect to the database.");
 		}
 		catch (ClassNotFoundException e) 
 		{

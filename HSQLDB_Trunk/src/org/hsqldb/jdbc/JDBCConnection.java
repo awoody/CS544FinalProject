@@ -31,41 +31,35 @@
 
 package org.hsqldb.jdbc;
 
+import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.NClob;
 import java.sql.PreparedStatement;
+import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLWarning;
+import java.sql.SQLXML;
+import java.sql.Savepoint;
 import java.sql.Statement;
+import java.sql.Struct;
 import java.util.Calendar;
 import java.util.Map;
-
-//#ifdef JAVA4
-import java.sql.Savepoint;
-
-//#endif JAVA4
-//#ifdef JAVA6
-import java.sql.Array;
-import java.sql.SQLClientInfoException;
-import java.sql.NClob;
-import java.sql.SQLXML;
-import java.sql.Struct;
 import java.util.Properties;
 
-//#endif JAVA6
-//import java.util.logging.Level;
-// import java.util.logging.Logger;
-import org.hsqldb.DatabaseManager;
-import org.hsqldb.DatabaseURL;
 import org.hsqldb.ClientConnection;
 import org.hsqldb.ClientConnectionHTTP;
+import org.hsqldb.DatabaseManager;
+import org.hsqldb.DatabaseURL;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
+import org.hsqldb.analysis.StatementTracker;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringUtil;
@@ -631,21 +625,25 @@ public class JDBCConnection implements Connection {
      * or this method is called on a closed connection
      * @see #prepareStatement(String,int,int)
      */
-    public synchronized PreparedStatement prepareStatement(
-            String sql) throws SQLException {
+    public synchronized PreparedStatement prepareStatement(String sql) throws SQLException {
 
         checkClosed();
 
-        try {
+        try 
+        {
+        	StatementTracker.registerStatementByKey(sql);
+        	
             return new JDBCPreparedStatement(this, sql,
                     JDBCResultSet.TYPE_FORWARD_ONLY,
                     JDBCResultSet.CONCUR_READ_ONLY, rsHoldability,
                     ResultConstants.RETURN_NO_GENERATED_KEYS, null, null);
-        } catch (HsqlException e) {
+        } 
+        catch (HsqlException e) 
+        {
             throw Util.sqlException(e);
         }
     }
-
+    
     /**
      * <!-- start generic documentation -->
      *

@@ -59,7 +59,8 @@ import org.hsqldb.store.ValuePool;
 // fredt@users 20050609 - 1.8.0 - fixed EXPLAIN PLAN by implementing describe(Session)
 // fredt@users - 1.9.0 - support for generated column reporting
 // fredt@users - 1.9.0 - support for multi-row inserts
-public abstract class StatementDMQL extends Statement {
+public abstract class StatementDMQL extends Statement 
+{
 
     public static final String PCOL_PREFIX        = "@p";
     static final String        RETURN_COLUMN_NAME = "@p0";
@@ -207,6 +208,11 @@ public abstract class StatementDMQL extends Statement {
         return result;
     }
 
+    public SubQuery[] getSubqueries()
+    {
+    	return subqueries;
+    }
+    
     private Result getExplainResult(Session session) {
 
         Result result = Result.newSingleColumnStringResult("OPERATION",

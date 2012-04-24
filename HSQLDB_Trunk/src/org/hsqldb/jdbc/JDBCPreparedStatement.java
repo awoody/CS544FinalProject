@@ -44,27 +44,22 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.NClob;
+import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.RowId;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLWarning;
+import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 
-//#ifdef JAVA4
-import java.sql.ParameterMetaData;
-import java.util.ArrayList;
-
-//#endif JAVA4
-//#ifdef JAVA6
-import java.sql.NClob;
-import java.sql.RowId;
-import java.sql.SQLXML;
-
-//#endif JAVA6
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SchemaObject;
@@ -261,8 +256,8 @@ import org.hsqldb.types.Types;
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet
  */
-public class JDBCPreparedStatement extends JDBCStatementBase implements PreparedStatement {
-
+public class JDBCPreparedStatement extends JDBCStatementBase implements PreparedStatement 
+{
     /**
      * <!-- start generic documentation -->
      * Executes the SQL query in this <code>PreparedStatement</code> object
@@ -3895,7 +3890,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 props, generatedKeys, generatedIndexes, generatedNames);
 
         Result in = session.execute(resultOut);
-
+        
+        
+        
         if (in.mode == ResultConstants.ERROR) {
             throw Util.sqlException(in);
         }
@@ -3949,10 +3946,17 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         resultOut.setStatement(in.getStatement());
 
+        //StatementAnalyzer.analyzeStatement(in.getStatement());
+        
         // for toString()
         this.sql = sql;
     }
 
+    public String getSql()
+    {
+    	return sql;
+    }
+    
     /**
      * Constructor for updatable ResultSet
      */

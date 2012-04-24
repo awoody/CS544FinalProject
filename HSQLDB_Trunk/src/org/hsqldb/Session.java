@@ -40,6 +40,7 @@ import java.util.Random;
 import java.util.TimeZone;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.analysis.StatementAnalyzerUtils;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCConnection;
@@ -1012,10 +1013,12 @@ public class Session implements SessionInterface {
 
                 return result;
             }
-            case ResultConstants.PREPARE : {
+            case ResultConstants.PREPARE : 
+            {
                 Statement cs;
 
-                try {
+                try 
+                {
                     cs = statementManager.compile(this, cmd);
                 } catch (Throwable t) {
                     String errorString = cmd.getMainString();
@@ -1028,6 +1031,8 @@ public class Session implements SessionInterface {
                     return Result.newErrorResult(t, errorString);
                 }
 
+                StatementAnalyzerUtils.analyzeStatement(cs);
+                
                 Result result = Result.newPrepareResponse(cs);
 
                 if (cs.getType() == StatementTypes.SELECT_CURSOR
@@ -1037,6 +1042,8 @@ public class Session implements SessionInterface {
 
                 result = performPostExecute(cmd, result);
 
+                
+                
                 return result;
             }
             case ResultConstants.CLOSE_RESULT : {

@@ -53,7 +53,7 @@ import org.hsqldb.result.Result;
  * @author Campbell Boucher-Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  */
-class SubQuery implements Comparator {
+public class SubQuery implements Comparator {
 
     int                  level;
     private boolean      isResolved;
@@ -126,6 +126,11 @@ class SubQuery implements Comparator {
         this.recursiveSubQuery = sq;
     }
 
+    public String getSql()
+    {
+    	return sql;
+    }
+    
     SubQuery(Database database, int level, Expression dataExpression,
              int mode) {
 

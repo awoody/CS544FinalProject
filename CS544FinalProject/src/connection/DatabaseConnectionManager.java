@@ -90,6 +90,19 @@ public class DatabaseConnectionManager
 		}
 	}
 			
+	public PreparedStatement getPreparedStatement(String sql)
+	{
+		try 
+		{
+			return entryConnection.prepareStatement(sql);
+		} 
+		catch (SQLException e) 
+		{
+			e.printStackTrace();
+			throw new RuntimeException("Could not prepare the indicated sql: " + sql);
+		}
+	}
+	
 	/**
 	 * Executes the SQL statement, which is provided as a string,
 	 * and returns a result set.  Intended for queries which
@@ -99,22 +112,21 @@ public class DatabaseConnectionManager
 	 * 
 	 * @return - The results of the SQL query.
 	 */
-	public ResultSet executeStatementWithResults(String sqlStatement)
+	public ResultSet executeStatementWithResults(PreparedStatement statement)
 	{
 		ResultSet returnSet = null;
 		
 		try
 		{
-			PreparedStatement insertStatement = entryConnection.prepareStatement(sqlStatement);
-			returnSet = insertStatement.executeQuery();
+			returnSet = statement.executeQuery();
 		}
 		catch (SQLException e)
 		{
-			System.err.println("executeStatementWithResults()] The Query " + sqlStatement + " has failed with message: " + e.getLocalizedMessage());
+			System.err.println("executeStatementWithResults()] The query has failed with message: " + e.getLocalizedMessage());
 		}
 		
 		if(returnSet == null)
-			throw new RuntimeException("Executed a query that returned no result set: " + sqlStatement);
+			System.err.println("Executed a query that returned no result set.");
 			
 		return returnSet;
 	}
@@ -126,16 +138,15 @@ public class DatabaseConnectionManager
 	 * 
 	 * @param sqlStatement 
 	 */
-	public void executeStatement(String sqlStatement)
+	public void executeStatement(PreparedStatement statement)
 	{
 		try
 		{
-			PreparedStatement insertStatement = entryConnection.prepareStatement(sqlStatement);
-			insertStatement.execute();
+			statement.execute();
 		}
 		catch (SQLException e)
 		{
-			System.err.println("executeStatement()] The Query " + sqlStatement + " has failed with message: " + e.getLocalizedMessage());;
+			System.err.println("executeStatement()] The query has failed with message: " + e.getLocalizedMessage());;
 		}
 	}
 }

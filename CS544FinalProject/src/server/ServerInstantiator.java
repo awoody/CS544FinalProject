@@ -1,9 +1,15 @@
 package server;
 
-import java.io.PrintWriter;
-
 import org.hsqldb.server.Server;
 
+/**
+ * What could this possibly do?!?
+ * 
+ * .. oh wait..
+ * 
+ * @author DeepBlue
+ *
+ */
 public class ServerInstantiator 
 {
     private static Server server;
@@ -21,7 +27,7 @@ public class ServerInstantiator
         server.setDatabasePath(0, "file:database/sample");
         server.setPort(1234);
         server.setTrace(true);
-        server.setLogWriter(new PrintWriter(System.out));
+        //server.setLogWriter(new PrintWriter(System.out));
         server.start();      
     }
     

@@ -27,7 +27,9 @@ public class ServerInstantiator
         server.setDatabasePath(0, "file:database/sample");
         server.setPort(1234);
         server.setTrace(true);
-        //server.setLogWriter(new PrintWriter(System.out));
+        server.setSilent(true);
+        server.setLogWriter(null);
+        server.setErrWriter(null);
         server.start();      
     }
     

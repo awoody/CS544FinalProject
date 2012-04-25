@@ -12,5 +12,5 @@ package org.hsqldb.analysis;
  */
 public enum SQLCommand 
 {
-	INSERT, UPDATE, DELETE, SELECT, ALTER, UNKNOWN;
+	INSERT, UPDATE, DELETE, SELECT, ALTER, AND, OR, WHERE, UNKNOWN;
 }

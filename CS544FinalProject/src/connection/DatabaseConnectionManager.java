@@ -143,6 +143,7 @@ public class DatabaseConnectionManager
 		try
 		{
 			statement.execute();
+			statement.close();
 		}
 		catch (SQLException e)
 		{

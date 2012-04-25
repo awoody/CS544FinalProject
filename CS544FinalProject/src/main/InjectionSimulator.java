@@ -1,6 +1,11 @@
 package main;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.hsqldb.analysis.SQLCommand;
@@ -8,20 +13,120 @@ import org.hsqldb.analysis.StatementTracker;
 import org.hsqldb.jdbc.JDBCPreparedStatement;
 
 import connection.DatabaseConnectionManager;
+import connection.Result;
 
 public class InjectionSimulator 
 {
-	private DatabaseConnectionManager manager;
-
+	private final DatabaseConnectionManager manager;
+	private boolean profilingEnabled = false;
+	
 	public InjectionSimulator(DatabaseConnectionManager connection)
 	{
 		this.manager = connection;
 	}
 	
-	public void run(String payload)
+	public void enableQueryProfiling()
 	{
-		String rawStatements = simulateVulnerableQuery(payload);
+		profilingEnabled = true;
+	}
+	
+	public void disableQueryProfiling()
+	{
+		profilingEnabled = false;
+	}
+	
+	private List<JDBCPreparedStatement> prepareSql(String sql, Map<SQLCommand, Integer> masterMap)
+	{		
+		List<JDBCPreparedStatement> allStatements = new ArrayList<JDBCPreparedStatement>();
 		
+		//Execute all of the statements and merge results with master.
+		//Because the prepared statement object won't parse multiple
+		//; delimited queries, this hack is necessary to simulate 
+		//an actual sql injection situation.
+		for(String statement : sql.split(";"))
+		{
+			allStatements.add(processSQLStatement(statement, masterMap));
+		}
+		
+		return allStatements;
+	}
+	
+	public void executeStatement(String sql, Map<SQLCommand, Integer> queryProfile) throws SQLInjectionException
+	{
+		Map<SQLCommand, Integer> master = generateMasterMap();
+		List<JDBCPreparedStatement> statements = prepareSql(sql, master);
+		
+		boolean isCorrectQuery = compareMaps(queryProfile, master);
+		
+		if(!isCorrectQuery)
+			throw new SQLInjectionException("SQL Injection Attempt Discovered.");
+		
+		for(JDBCPreparedStatement statement : statements)
+		{
+			manager.executeStatement(statement);
+		}
+	}
+	
+	public List<Result> executeStatementWithResults(String sql, Map<SQLCommand, Integer> queryProfile) throws SQLInjectionException
+	{
+		Map<SQLCommand, Integer> master = generateMasterMap();
+		List<JDBCPreparedStatement> statements = prepareSql(sql, master);
+		
+		boolean isCorrectQuery = compareMaps(queryProfile, master);
+		
+		if(!isCorrectQuery)
+			throw new SQLInjectionException("SQL Injection Attempt Discovered.");
+		
+		List<Result> allResults = new LinkedList<Result>();
+		
+		for(JDBCPreparedStatement statement : statements)
+		{
+			ResultSet results = manager.executeStatementWithResults(statement);
+			allResults.addAll(createResultsFromResultSet(results));
+			
+			try
+			{
+				results.close();
+				statement.close();
+			} 
+			catch (SQLException e) 
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		return allResults;
+	}
+	
+	private boolean compareMaps(Map<SQLCommand, Integer> queryProfile, Map<SQLCommand, Integer> analysisMap)
+	{
+		//Always return true if profiling is disabled.
+		if(!profilingEnabled)
+			return true;
+		
+		for(SQLCommand command : queryProfile.keySet())
+		{
+			Integer profileValue = queryProfile.get(command);
+			Integer analysisValue = analysisMap.get(command);
+			
+			if(profileValue != analysisValue)
+				return false;
+		}
+		
+		for(SQLCommand command : analysisMap.keySet())
+		{
+			Integer profileValue = queryProfile.get(command);
+			Integer analysisValue = analysisMap.get(command);
+			
+			if(profileValue != analysisValue)
+				return false;
+		}
+		
+		return true;
+	}
+	
+	private Map<SQLCommand, Integer> generateMasterMap()
+	{
 		Map<SQLCommand, Integer> masterMap = new HashMap<SQLCommand, Integer>();
 		
 		//Zero out all values for the master map.
@@ -30,19 +135,27 @@ public class InjectionSimulator
 			masterMap.put(command, 0);
 		}
 		
-		//Execute all of the statements and merge results with master.
-		//Because the prepared statement object won't parse multiple
-		//; delimited queries, this hack is necessary to simulate 
-		//an actual sql injection situation.
-		for(String statement : rawStatements.split(";"))
-		{
-			mergeMaps(processSQLStatement(statement), masterMap);
-		}
+		return masterMap;
+	}
+	
+	private List<Result> createResultsFromResultSet(ResultSet resultSet)
+	{
+		List<Result> allResults = new LinkedList<Result>();
 		
-		for(SQLCommand command : SQLCommand.values())
+		try
 		{
-			System.out.println(command + " : " + masterMap.get(command));
-		}
+			while(resultSet.next())
+			{
+				allResults.add(new Result(resultSet));
+			}
+			
+			return allResults;
+		} 
+		catch (SQLException e) 
+		{
+			e.printStackTrace();
+			throw new RuntimeException("Something shit the bed here.");	
+		}	
 	}
 	
 	private void mergeMaps(Map<SQLCommand, Integer> source, Map<SQLCommand, Integer> destination)
@@ -58,27 +171,14 @@ public class InjectionSimulator
 		}
 	}
 	
-	private Map<SQLCommand, Integer> processSQLStatement(String sql)
+	private JDBCPreparedStatement processSQLStatement(String sql, Map<SQLCommand, Integer> masterMap)
 	{
 		JDBCPreparedStatement statement = (JDBCPreparedStatement) manager.getPreparedStatement(sql);
 		
 		Map<SQLCommand, Integer> queryMap = StatementTracker.getMapForKey(statement.getSql());
 		
-		return queryMap;
-	}
-	
-	private Map<SQLCommand, Integer> buildVulnerableQueryExpectationMap()
-	{
-		Map<SQLCommand, Integer> queryVector = new HashMap<SQLCommand, Integer>();
+		mergeMaps(queryMap, masterMap);
 		
-		//Only one SELECT is expected.
-		queryVector.put(SQLCommand.SELECT, 1);
-		
-		return queryVector;
-	}
-	
-	private String simulateVulnerableQuery(String parameter)
-	{
-		return "SELECT * FROM contacts WHERE phone = '" + parameter + "'";
+		return statement;
 	}
 }

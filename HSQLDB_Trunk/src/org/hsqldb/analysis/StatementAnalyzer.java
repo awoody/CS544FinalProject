@@ -41,13 +41,48 @@ public class StatementAnalyzer
 		//that information to update StatementTypeClassifier.
 		if(commandType == SQLCommand.UNKNOWN)
 			throw new RuntimeException("Unknown statement type: " + type);
-		
-		incrementMap(commandType);
+				
+		incrementMap(commandType, 1);
 			
+		String sql = parentStatement.getSQL();
+		analyzeStatement(sql);
+		
 		//This class of statement permits subqueries.
 		if(parentStatement instanceof StatementDMQL)
 			handleStatementDMQL(commandType, (StatementDMQL) parentStatement);
 				
+	}
+	
+	private void analyzeStatement(String sql)
+	{
+		int numAnds = countOccurances(sql, "AND");
+		int numOrs = countOccurances(sql, "OR");
+		int numWhere = countOccurances(sql, "WHERE");
+		
+		incrementMap(SQLCommand.AND, numAnds);
+		incrementMap(SQLCommand.OR, numOrs);
+		incrementMap(SQLCommand.WHERE, numWhere);
+	}
+	
+	private int countOccurances(String target, String searchString)
+	{
+		int i = target.indexOf(searchString);
+		
+		if(i == -1)
+			return 0;
+		
+		int counter = 1;
+		while(true)
+		{
+			i = target.indexOf(searchString, i+1);
+			
+			if(i == -1)
+				break;
+			
+			counter++;
+		}
+		
+		return counter;
 	}
 	
 	//Iterates over the subqueries, processing each of them in turn.
@@ -64,21 +99,21 @@ public class StatementAnalyzer
 	private void handleSubQuery(SQLCommand parentType, SubQuery query)
 	{
 		//The only permitted subqueries are selects?
-		incrementMap(SQLCommand.SELECT);
+		incrementMap(SQLCommand.SELECT, 1);
 	}
 		
 	//Increments the map's value for the given key
 	//by one.
-	private void incrementMap(SQLCommand key)
+	private void incrementMap(SQLCommand key, int occurances)
 	{
 		if(!analysisMap.containsKey(key))
 		{
-			analysisMap.put(key, 1);
+			analysisMap.put(key, occurances);
 		}
 		else
 		{
 			int value = analysisMap.get(key);
-			analysisMap.put(key, ++value);
+			analysisMap.put(key, value + occurances);
 		}	
 	}
 }

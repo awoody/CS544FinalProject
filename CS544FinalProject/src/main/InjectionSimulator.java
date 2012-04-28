@@ -18,7 +18,12 @@ import connection.Result;
 public class InjectionSimulator 
 {
 	private final DatabaseConnectionManager manager;
-	private boolean profilingEnabled = false;
+	
+	//This is for debugging or when queries need to be executed
+	//on the database without worrying about profiling.  Allows
+	//the comparison between a queryProfile and it's analysis
+	//to be bypassed if this is set to false.
+	private boolean profilingEnabled = true;
 	
 	public InjectionSimulator(DatabaseConnectionManager connection)
 	{
@@ -39,6 +44,14 @@ public class InjectionSimulator
 	{		
 		List<JDBCPreparedStatement> allStatements = new ArrayList<JDBCPreparedStatement>();
 		
+		//Delete anything occurring in the statement after a SQL comment is started.
+		int commentIndex = sql.indexOf("--");
+		
+		if(commentIndex != -1)
+		{
+			sql = sql.substring(0, commentIndex);
+		}
+		
 		//Execute all of the statements and merge results with master.
 		//Because the prepared statement object won't parse multiple
 		//; delimited queries, this hack is necessary to simulate 
@@ -51,6 +64,32 @@ public class InjectionSimulator
 		return allStatements;
 	}
 	
+	
+	/**
+	 * Used to profile SQL queries where you don't actually want them to make
+	 * any modifications to the database, but simply want to see what element
+	 * they have within them.
+	 * 
+	 * @param sql
+	 * @return
+	 * @throws SQLInjectionException
+	 */
+	public Map<SQLCommand, Integer> executeStatementProfileOnly(String sql) 
+	{
+		Map<SQLCommand, Integer> master = generateMasterMap();
+		prepareSql(sql, master);
+		
+		return master;
+	}
+	
+	/**
+	 * Executes a statement, refusing to do so if the query, after analysis, does not match
+	 * the provided profile exactly.
+	 * 
+	 * @param sql
+	 * @param queryProfile
+	 * @throws SQLInjectionException
+	 */
 	public void executeStatement(String sql, Map<SQLCommand, Integer> queryProfile) throws SQLInjectionException
 	{
 		Map<SQLCommand, Integer> master = generateMasterMap();
@@ -67,6 +106,15 @@ public class InjectionSimulator
 		}
 	}
 	
+	/**
+	 * Executes a query and returns results, refusing to do so if the query, after analsys,
+	 * does not match the provided profile exactly.
+	 * 
+	 * @param sql
+	 * @param queryProfile
+	 * @return
+	 * @throws SQLInjectionException
+	 */
 	public List<Result> executeStatementWithResults(String sql, Map<SQLCommand, Integer> queryProfile) throws SQLInjectionException
 	{
 		Map<SQLCommand, Integer> master = generateMasterMap();

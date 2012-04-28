@@ -58,10 +58,12 @@ public class StatementAnalyzer
 		int numAnds = countOccurances(sql, "AND");
 		int numOrs = countOccurances(sql, "OR");
 		int numWhere = countOccurances(sql, "WHERE");
+		int numUnion = countOccurances(sql, "UNION");
 		
 		incrementMap(SQLCommand.AND, numAnds);
 		incrementMap(SQLCommand.OR, numOrs);
 		incrementMap(SQLCommand.WHERE, numWhere);
+		incrementMap(SQLCommand.UNION, numUnion);
 	}
 	
 	private int countOccurances(String target, String searchString)

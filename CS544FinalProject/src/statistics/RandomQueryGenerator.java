@@ -100,19 +100,9 @@ public class RandomQueryGenerator
 	
 	private SQLCommand randomCommand()
 	{
-		int command = r.nextInt(3);
-		
-		switch(command)
-		{
-			case 0:
-				return SQLCommand.SELECT;
-			case 1:
-				return SQLCommand.UPDATE;
-			case 2:
-				return SQLCommand.DELETE;
-		}
-		
-		throw new RuntimeException("Shouldn't get here.");
+		int value = r.nextInt(UserCommandList.allowedCommands.length);
+			
+		return UserCommandList.allowedCommands[value];
 	}
 	
 	private String randomUpdate(String injection)

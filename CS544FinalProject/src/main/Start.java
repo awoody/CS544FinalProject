@@ -6,6 +6,13 @@ import server.ServerInstantiator;
 import connection.DatabaseConnectionManager;
 import external.ExternalInterface;
 
+/**
+ * This thing is a legacy from development and pretty much useless; go use the
+ * statistics generator!!
+ * 
+ * @author DeepBlue
+ *
+ */
 public class Start 
 {
 	private static DatabaseConnectionManager manager;
